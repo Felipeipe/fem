@@ -13,21 +13,49 @@ NF : int = len(fixed_node_potential) # number of fixed nodes (nodes where potent
 i : int = 0
 
 C : np.ndarray = np.zeros((3,3)) 
-P = pd.DataFrame(columns = ['P1','P2','P3'])
-Q = pd.DataFrame(columns = ['Q1','Q2','Q3'])
+P = pd.DataFrame(columns = ['P1', 'P2', 'P3'])
+Q = pd.DataFrame(columns = ['Q1', 'Q2', 'Q3'])
 
 while i < NE:
-    N1 : int = element_node_id.iloc[i][1]
-    N2 : int = element_node_id.iloc[i][2]
-    N3 : int = element_node_id.iloc[i][3]
-
-    x1, y1 = [nodal_coordinates.iloc[N1-1][1],nodal_coordinates.iloc[N1-1][2]]
-    x2, y2 = [nodal_coordinates.iloc[N2-1][1],nodal_coordinates.iloc[N2-1][2]]
-    x3, y3 = [nodal_coordinates.iloc[N3-1][1],nodal_coordinates.iloc[N3-1][2]]
+    # Se obtiene los nodos por cada elemento
+    N1 : int = element_node_id.iloc[i, 1] 
+    N2 : int = element_node_id.iloc[i, 2]
+    N3 : int = element_node_id.iloc[i, 3]
+    
+    # Luego se obtiene la coordenada de cada nodo perteneciente al i-ésimo elemento
+    x1, y1 = nodal_coordinates.iloc[N1-1, 1], nodal_coordinates.iloc[N1-1, 2]
+    x2, y2 = nodal_coordinates.iloc[N2-1, 1], nodal_coordinates.iloc[N2-1, 2]
+    x3, y3 = nodal_coordinates.iloc[N3-1, 1], nodal_coordinates.iloc[N3-1, 2]
 
     P.loc[i] = [(y2 - y3), (y3 - y1), (y1 - y2)]
     Q.loc[i] = [(x3 - x2), (x1 - x3), (x2 - x1)]
 
     i += 1 
-print(P)
-print(Q)
+
+def Ce(A : float, 
+       num_element : int, 
+       P : pd.DataFrame, 
+       Q : pd.DataFrame
+       )-> np.ndarray:
+    
+    i : int = 0
+    j : int = 0
+    Ce = np.zeros((3,3))
+    Ce = np.zeros((3,3))
+    for i in range(3):
+        for j in range(i, 3):  # Iteramos solo sobre la mitad de la matriz
+            Ce[i, j] = (P.iloc[num_element, i] * P.iloc[num_element, j] 
+                        + Q.iloc[num_element, i] * Q.iloc[num_element, j]) / (4*A)
+            
+            Ce[j, i] = Ce[i, j]
+    
+    return Ce
+print(NE)
+i : int = 0
+C_element : list[np.ndarray] = [] 
+while i < NE:
+    A : float = (P.iloc[i,1] * Q.iloc[i,2] - P.iloc[i,2] * Q.iloc[i,1]) / 2
+    C_element.append(Ce(A, i, P, Q))
+    i += 1
+
+
