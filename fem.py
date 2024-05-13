@@ -43,7 +43,7 @@ def Ce(A : float,
     Ce = np.zeros((3,3))
     Ce = np.zeros((3,3))
     for i in range(3):
-        for j in range(i, 3):  # Iteramos solo sobre la mitad de la matriz
+        for j in range(i, 3):  # Iterating over half of the matrix
             Ce[i, j] = (P.iloc[num_element, i] * P.iloc[num_element, j] 
                         + Q.iloc[num_element, i] * Q.iloc[num_element, j]) / (4*A)
             
@@ -58,4 +58,24 @@ while i < NE:
     C_element.append(Ce(A, i, P, Q))
     i += 1
 
+def ensamblar_matriz_global(matrices_elementos : list[np.ndarray],
+                            df_nodos : pd.DataFrame,
+                            N_nodos : int
+                            )-> np.ndarray:
+    # Obtener el número total de nodos
+    n = N_nodos 
 
+    # Inicializar la matriz global con ceros
+    matriz_global = np.zeros((n, n))
+
+    # Recorrer las matrices de elementos y ensamblar en la matriz global
+    for matriz_elemento, idx_elemento in zip(matrices_elementos, df_nodos.index):
+        nodos_elemento = df_nodos.loc[idx_elemento]
+        # Ensamblar la matriz de elemento en la matriz global
+        for i, ni in enumerate(nodos_elemento):
+            for j, nj in enumerate(nodos_elemento):
+                matriz_global[ni, nj] += matriz_elemento[i, j]
+
+    return matriz_global
+
+print(f"Matriz global de coeficientes:\n{ensamblar_matriz_global(C_element, element_node_id, ND)}")
