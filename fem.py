@@ -34,14 +34,3 @@ while i < NE:
 print(P)
 print(Q)
 
-i : int = 0
-j : int = 0
-
-Cs = np.zeros(NE)
-
-
-for k in range(NE):
-    A = (P.iloc[k,2]*Q.iloc[k,3] - P.iloc[k,3]*Q.iloc[k,2]) / 2
-    while i < np.size(C, 0):
-        while j < np.size(C, 1):
-            print("hello")
