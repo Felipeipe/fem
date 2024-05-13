@@ -10,8 +10,6 @@ NE : int = len(element_node_id)      # number of total elements (triangles) of a
 NF : int = len(fixed_node_potential) # number of fixed nodes (nodes where potential is known)
 
 
-
-
 i : int = 0
 
 C : np.ndarray = np.zeros((3,3)) 
@@ -33,4 +31,3 @@ while i < NE:
     i += 1 
 print(P)
 print(Q)
-
