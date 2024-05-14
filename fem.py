@@ -21,7 +21,7 @@ while i < NE:
     N1 : int = element_node_id.iloc[i, 1] 
     N2 : int = element_node_id.iloc[i, 2]
     N3 : int = element_node_id.iloc[i, 3]
-    
+  
     # Luego se obtiene la coordenada de cada nodo perteneciente al i-ésimo elemento
     x1, y1 = nodal_coordinates.iloc[N1-1, 1], nodal_coordinates.iloc[N1-1, 2]
     x2, y2 = nodal_coordinates.iloc[N2-1, 1], nodal_coordinates.iloc[N2-1, 2]
@@ -50,32 +50,50 @@ def Ce(A : float,
             Ce[j, i] = Ce[i, j]
     
     return Ce
-print(NE)
+
+
+
 i : int = 0
 C_element : list[np.ndarray] = [] 
+
 while i < NE:
     A : float = (P.iloc[i,1] * Q.iloc[i,2] - P.iloc[i,2] * Q.iloc[i,1]) / 2
     C_element.append(Ce(A, i, P, Q))
     i += 1
 
-def ensamblar_matriz_global(matrices_elementos : list[np.ndarray],
-                            df_nodos : pd.DataFrame,
-                            N_nodos : int
-                            )-> np.ndarray:
-    # Obtener el número total de nodos
-    n = N_nodos 
 
-    # Inicializar la matriz global con ceros
-    matriz_global = np.zeros((n, n))
+def ensamblaje_aux(Ce : np.ndarray,
+               node_id : pd.DataFrame,
+               node_number : int,
+               element_number : int
+               ) -> np.ndarray:
+    i : int = 0
+    j : int = 0
+    C : np.ndarray = np.zeros((node_number, node_number))
+    node_loc : list[int] = list(node_id.iloc[:,element_number])
+    node_loc = node_loc[1:]
+    while i < node_number:
+        while j < node_number:
+            try:
+                C[i, j] += Ce[node_loc.index(i), node_loc.index(j)]
+            except ValueError:
+                print(f"alerta, no se encuentra los valores {i} ni {j} en las listas que me pasaste")
+                C[i, j] += 0
+            j += 1
+            i += 1
+    return C
 
-    # Recorrer las matrices de elementos y ensamblar en la matriz global
-    for matriz_elemento, idx_elemento in zip(matrices_elementos, df_nodos.index):
-        nodos_elemento = df_nodos.loc[idx_elemento]
-        # Ensamblar la matriz de elemento en la matriz global
-        for i, ni in enumerate(nodos_elemento):
-            for j, nj in enumerate(nodos_elemento):
-                matriz_global[ni, nj] += matriz_elemento[i, j]
 
-    return matriz_global
+def ensamblaje(Ce : list[np.ndarray],
+               node_id : pd.DataFrame,
+               node_number : int
+               ) -> np.ndarray:
+    
+    C : np.ndarray = np.zeros((node_number, node_number))
 
-print(f"Matriz global de coeficientes:\n{ensamblar_matriz_global(C_element, element_node_id, ND)}")
+    for i, X in enumerate(Ce):
+        C += ensamblaje_aux(X, node_id, node_number, i)
+    
+    return C
+
+print(ensamblaje(C_element, element_node_id, ND))
