@@ -63,3 +63,120 @@ while i < NE:
     A : float = (P.iloc[i,1] * Q.iloc[i,2] - P.iloc[i,2] * Q.iloc[i,1]) / 2
     C_element.append(Ce(A, i, P, Q))
     i += 1
+
+
+def row_to_list(node_id : pd.DataFrame,
+        element_number : int) -> list[int]:
+    """ Transforma la fila numero element_number del dataframe node_id a una lista.
+    """
+    node_loc : list[int] = list(node_id.iloc[element_number])
+    return node_loc[1:]
+
+
+C : np.ndarray = np.array([[1,  0     , 0,  0     ],
+                           [0,  1.25  , 0, -0.0143],
+                           [0,  0     , 1,  0     ],
+                           [0, -0.0143, 0,  0.8381]])
+
+B : np.array = np.array([0, 4.571, 10, 3.6667])
+
+
+V = np.dot(np.linalg.inv(C),B)
+
+L = row_to_list(element_node_id, 0)
+
+Ve1 : list = []
+for x in L:
+    Ve1.append(V[x - 1]) 
+
+print(Ve1)
+L = row_to_list(element_node_id, 1)
+
+Ve2 : list = []
+for x in L:
+    Ve2.append(V[x - 1]) 
+
+print(Ve2)
+
+
+Me1 : np.ndarray = np.array([[1, 0.8, 1.8],
+                             [1, 1.4, 1.4],
+                             [1, 1.2, 2.7]])
+
+Me2 : np.ndarray = np.array([[1, 1.4, 1.4],
+                             [1, 2.1, 2.1],
+                             [1, 1.2, 2.7]]) 
+
+
+coef_elemento_1 : np.array = np.dot(np.linalg.inv(Me1),Ve1)
+coef_elemento_2 : np.array = np.dot(np.linalg.inv(Me2),Ve2)
+
+def V_elemento(x : float,
+                 y : float,
+                 param : np.array
+                 ) -> float:
+    a, b, c = param
+    return a + b * x + c * y
+
+x = np.linspace(0, 2, 100)
+y = np.linspace(0, 3, 100)
+X, Y = np.meshgrid(x, y)
+Z = V_elemento(X, Y,coef_elemento_1)
+
+# Graficar la función
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(X, Y, Z, cmap='viridis')
+
+# Coordenadas del triángulo
+triangle_vertices = np.array([[0.8, 1.8, V_elemento(0.8, 1.8,coef_elemento_1)], 
+                              [1.4, 1.4, V_elemento(1.4, 1.4,coef_elemento_1)], 
+                              [1.2, 2.7, V_elemento(1.2, 2.7,coef_elemento_1)], 
+                              [0.8, 1.8, V_elemento(0.8, 1.8,coef_elemento_1)]])
+
+# Graficar el triángulo
+ax.plot(triangle_vertices[:, 0], triangle_vertices[:, 1], triangle_vertices[:, 2], color='black')
+
+
+# Configuraciones adicionales (opcional)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Mostrar la gráfica
+plt.show()
+
+
+
+# def ensamblaje_aux(Ce : np.ndarray,
+#                node_loc : list[int],
+#                node_number : int,
+#                element_number : int
+#                ) -> np.ndarray:
+#     i : int = 0
+#     C : np.ndarray = np.zeros((node_number, node_number))
+#     for i in range(node_number):
+#         for j in range(i, node_number):
+#             try:
+#                 C[i, j] += Ce[node_loc.index(i + 1), node_loc.index(j + 1)]
+#                 C[j, i] = C[i, j]
+#             except ValueError:
+#                 print(f"alerta, no se encuentra los valores {i + 1} ni {j + 1} en las listas que me pasaste")
+#                 C[i, j] += 0
+#                 C[j, i] = C[i, j]
+#     return C
+
+
+# def ensamblaje(Ce : list[np.ndarray],
+#                node_id : pd.DataFrame,
+#                node_number : int
+#                ) -> np.ndarray:
+    
+#     C : np.ndarray = np.zeros((node_number, node_number))
+
+#     for i, X in enumerate(Ce):
+#         C += ensamblaje_aux(X, row_to_list(node_id, i), node_number, i)
+    
+#     return C
+
+# print(ensamblaje(C_element, element_node_id, ND))
