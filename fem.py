@@ -110,6 +110,7 @@ Me2 : np.ndarray = np.array([[1, 1.4, 1.4],
 
 coef_elemento_1 : np.array = np.dot(np.linalg.inv(Me1),Ve1)
 coef_elemento_2 : np.array = np.dot(np.linalg.inv(Me2),Ve2)
+coef_elemento_3 = (coef_elemento_1 + coef_elemento_2) / 2
 
 def V_elemento(x : float,
                  y : float,
@@ -118,65 +119,28 @@ def V_elemento(x : float,
     a, b, c = param
     return a + b * x + c * y
 
-x = np.linspace(0, 2, 100)
-y = np.linspace(0, 3, 100)
+# Generar datos para graficar
+x = np.linspace(0.5, 2.5, 100)
+y = np.linspace(1, 3, 100)
 X, Y = np.meshgrid(x, y)
-Z = V_elemento(X, Y,coef_elemento_1)
+Z = V_elemento(X, Y,coef_elemento_3)
 
-# Graficar la función
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.plot_surface(X, Y, Z, cmap='viridis')
-
-# Coordenadas del triángulo
-triangle_vertices = np.array([[0.8, 1.8, V_elemento(0.8, 1.8,coef_elemento_1)], 
-                              [1.4, 1.4, V_elemento(1.4, 1.4,coef_elemento_1)], 
-                              [1.2, 2.7, V_elemento(1.2, 2.7,coef_elemento_1)], 
-                              [0.8, 1.8, V_elemento(0.8, 1.8,coef_elemento_1)]])
+# Graficar la función con un mapa de calor
+plt.figure()
+heatmap = plt.imshow(Z, extent=[x.min(), x.max(), y.min(), y.max()], origin='lower', cmap='viridis')
+plt.colorbar(heatmap)  # Añadir barra de color
 
 # Graficar el triángulo
-ax.plot(triangle_vertices[:, 0], triangle_vertices[:, 1], triangle_vertices[:, 2], color='black')
+element1_vertices = np.array([[0.8, 1.8], [1.4, 1.4], [1.2, 2.7], [0.8, 1.8]])
+element2_vertices = np.array([[1.4, 1.4], [2.1, 2.1], [1.2, 2.7], [1.4, 1.4]])
 
+plt.plot(element1_vertices[:, 0], element1_vertices[:, 1], 'r-')
+plt.plot(element2_vertices[:, 0], element2_vertices[:, 1], 'r-')
 
 # Configuraciones adicionales (opcional)
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.title('Potencial en función de la posición')
 
 # Mostrar la gráfica
 plt.show()
-
-
-
-# def ensamblaje_aux(Ce : np.ndarray,
-#                node_loc : list[int],
-#                node_number : int,
-#                element_number : int
-#                ) -> np.ndarray:
-#     i : int = 0
-#     C : np.ndarray = np.zeros((node_number, node_number))
-#     for i in range(node_number):
-#         for j in range(i, node_number):
-#             try:
-#                 C[i, j] += Ce[node_loc.index(i + 1), node_loc.index(j + 1)]
-#                 C[j, i] = C[i, j]
-#             except ValueError:
-#                 print(f"alerta, no se encuentra los valores {i + 1} ni {j + 1} en las listas que me pasaste")
-#                 C[i, j] += 0
-#                 C[j, i] = C[i, j]
-#     return C
-
-
-# def ensamblaje(Ce : list[np.ndarray],
-#                node_id : pd.DataFrame,
-#                node_number : int
-#                ) -> np.ndarray:
-    
-#     C : np.ndarray = np.zeros((node_number, node_number))
-
-#     for i, X in enumerate(Ce):
-#         C += ensamblaje_aux(X, row_to_list(node_id, i), node_number, i)
-    
-#     return C
-
-# print(ensamblaje(C_element, element_node_id, ND))
