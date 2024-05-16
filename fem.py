@@ -120,7 +120,7 @@ def V_elemento(x : float,
     return a + b * x + c * y
 
 # Generar datos para graficar
-x = np.linspace(0.5, 2.5, 100)
+x = np.linspace(0, 2.5, 100)
 y = np.linspace(1, 3, 100)
 X, Y = np.meshgrid(x, y)
 Z = V_elemento(X, Y,coef_elemento_3)
@@ -133,6 +133,13 @@ plt.colorbar(heatmap)  # Añadir barra de color
 # Graficar el triángulo
 element1_vertices = np.array([[0.8, 1.8], [1.4, 1.4], [1.2, 2.7], [0.8, 1.8]])
 element2_vertices = np.array([[1.4, 1.4], [2.1, 2.1], [1.2, 2.7], [1.4, 1.4]])
+L : list[np.array] = [element1_vertices, element2_vertices]
+
+for triangle_vertices in L:
+    Z_vertices = V_elemento(triangle_vertices[:, 0], triangle_vertices[:, 1],coef_elemento_3)
+    for (x, y, z) in zip(triangle_vertices[:, 0], triangle_vertices[:, 1], Z_vertices):
+        plt.plot(x, y, 'r-o')  # Marcar los vértices con puntos rojos
+        plt.text(x, y, f'({x:.1f}, {y:.1f}, {z:.2f})', color='white', fontsize=8, ha='right')
 
 plt.plot(element1_vertices[:, 0], element1_vertices[:, 1], 'r-')
 plt.plot(element2_vertices[:, 0], element2_vertices[:, 1], 'r-')
