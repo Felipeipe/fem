@@ -73,6 +73,10 @@ def row_to_list(node_id : pd.DataFrame,
     return node_loc[1:]
 
 
+# Este codigo fue usado como ejemplo, está pendiente la creacion 
+# de la función de ensamblaje de coeficientes globales
+
+
 C : np.ndarray = np.array([[1,  0     , 0,  0     ],
                            [0,  1.25  , 0, -0.0143],
                            [0,  0     , 1,  0     ],
